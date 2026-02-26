@@ -148,6 +148,26 @@ paths:
       responses:
         '200':
           description: Sync logs
+  /api/v1/observability/frontend-events:
+    post:
+      summary: Report frontend observability event
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FrontendObservabilityEventRequest'
+      responses:
+        '201':
+          description: Event created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrontendObservabilityEventResponse'
+        '400':
+          description: Invalid payload
 
 components:
   securitySchemes:
@@ -155,3 +175,40 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+  schemas:
+    FrontendObservabilityEventRequest:
+      type: object
+      required:
+        - eventType
+        - level
+        - occurredAt
+        - payload
+      properties:
+        eventType:
+          type: string
+          example: async-page-load-failed
+        level:
+          type: string
+          enum: [INFO, WARN, ERROR]
+          example: ERROR
+        occurredAt:
+          type: string
+          format: date-time
+          example: 2026-02-26T00:00:00Z
+        payload:
+          type: object
+          additionalProperties: true
+          example:
+            attempts: 3
+            errorMessage: network down
+    FrontendObservabilityEventResponse:
+      allOf:
+        - $ref: '#/components/schemas/FrontendObservabilityEventRequest'
+        - type: object
+          required:
+            - id
+          properties:
+            id:
+              type: integer
+              format: int64
+              example: 1
