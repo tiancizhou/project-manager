@@ -53,29 +53,7 @@
 - API: `POST /api/integrations/sync/run?systemCode=demo|vendor`
 - API: `GET /api/integrations/sync/logs`
 
-## 9. 前端异常上报约定
-
-- 触发场景：路由异步页面加载失败（当前事件名：`pm:async-page-load-failed`）
-- 上报 API：`POST /api/v1/observability/frontend-events`
-- 请求体字段：`eventType`、`level`、`occurredAt`、`payload`
-- 固定值约定：`eventType=async-page-load-failed`，`level=ERROR`
-- `payload` 推荐字段：`attempts`（重试次数）、`errorMessage`（错误信息）
-
-示例：
-
-```json
-{
-  "eventType": "async-page-load-failed",
-  "level": "ERROR",
-  "occurredAt": "2026-02-26T00:00:00Z",
-  "payload": {
-    "attempts": 3,
-    "errorMessage": "network down"
-  }
-}
-```
-
-## 10. 统一约定
+## 9. 统一约定
 
 - 鉴权：除 `/api/health`、`/api/auth/**` 外，均需 `Authorization: Bearer <token>`
 - 日期字段：`YYYY-MM-DD`
