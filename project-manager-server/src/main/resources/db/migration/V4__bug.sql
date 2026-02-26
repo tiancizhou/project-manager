@@ -1,0 +1,20 @@
+CREATE TABLE bug (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    title VARCHAR(255) NOT NULL,
+    severity VARCHAR(32) NOT NULL,
+    status VARCHAR(32) NOT NULL,
+    task_id BIGINT NULL,
+    assignee VARCHAR(100) NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_bug_task FOREIGN KEY (task_id) REFERENCES task (id)
+);
+
+CREATE TABLE bug_history (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    bug_id BIGINT NOT NULL,
+    from_status VARCHAR(32) NULL,
+    to_status VARCHAR(32) NOT NULL,
+    changed_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_bug_history_bug FOREIGN KEY (bug_id) REFERENCES bug (id)
+);

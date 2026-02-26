@@ -1,0 +1,157 @@
+openapi: 3.0.3
+info:
+  title: Project Manager V1 API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8080
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: OK
+  /api/auth/login:
+    post:
+      summary: Login and get token
+      requestBody:
+        required: true
+      responses:
+        '200':
+          description: Login success
+  /api/org/depts:
+    get:
+      summary: List departments
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Department list
+  /api/org/users:
+    post:
+      summary: Create user
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Created
+  /api/pm/products:
+    post:
+      summary: Create product
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Created
+  /api/pm/requirements:
+    post:
+      summary: Create requirement
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Created
+  /api/pm/projects:
+    post:
+      summary: Create project
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Created
+  /api/pm/tasks:
+    post:
+      summary: Create task
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Created
+  /api/pm/worklogs:
+    post:
+      summary: Add worklog
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Created
+  /api/pm/bugs:
+    post:
+      summary: Create bug
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Created
+  /api/docs/spaces:
+    post:
+      summary: Create doc space
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Created
+  /api/docs/pages:
+    post:
+      summary: Create doc page
+      security:
+        - bearerAuth: []
+      responses:
+        '201':
+          description: Created
+  /api/dashboard/snapshots/build:
+    post:
+      summary: Build daily snapshot
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Snapshot built
+  /api/dashboard/summary:
+    get:
+      summary: Get daily summary
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Summary
+  /api/integrations/sync/run:
+    post:
+      summary: Run sync job
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: systemCode
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sync result
+  /api/integrations/sync/logs:
+    get:
+      summary: List sync logs
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Sync logs
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
