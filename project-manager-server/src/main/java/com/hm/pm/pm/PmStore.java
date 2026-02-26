@@ -2,7 +2,9 @@ package com.hm.pm.pm;
 
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -82,12 +84,71 @@ public class PmStore {
     }
 
     public Project createProject(String name) {
+        return createProject(name, null, null, null);
+    }
+
+    public Project createProject(String name, String owner, LocalDate startDate, LocalDate endDate) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("project name is required");
         }
+        if (owner != null && owner.isBlank()) {
+            throw new IllegalArgumentException("owner cannot be blank");
+        }
+        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
+            throw new IllegalArgumentException("endDate cannot be before startDate");
+        }
+
         long projectId = projectIdGenerator.incrementAndGet();
-        Project project = new Project(projectId, name);
+        String resolvedOwner = owner == null ? "unassigned" : owner;
+        Project project = new Project(projectId, name, resolvedOwner, startDate, endDate, ProjectStatus.ONGOING);
         projects.put(projectId, project);
+        return project;
+    }
+
+    public List<Project> listProjects(ProjectStatus status) {
+        return projects.values().stream()
+                .filter(project -> status == null || project.status() == status)
+                .sorted(Comparator.comparing(Project::id))
+                .toList();
+    }
+
+    public Project archiveProject(Long projectId) {
+        Project project = getProject(projectId);
+        if (project.status() == ProjectStatus.ARCHIVED) {
+            return project;
+        }
+
+        Project updated = new Project(project.id(),
+                project.name(),
+                project.owner(),
+                project.startDate(),
+                project.endDate(),
+                ProjectStatus.ARCHIVED);
+        projects.put(projectId, updated);
+        return updated;
+    }
+
+    public Project restoreProject(Long projectId) {
+        Project project = getProject(projectId);
+        if (project.status() == ProjectStatus.ONGOING) {
+            return project;
+        }
+
+        Project updated = new Project(project.id(),
+                project.name(),
+                project.owner(),
+                project.startDate(),
+                project.endDate(),
+                ProjectStatus.ONGOING);
+        projects.put(projectId, updated);
+        return updated;
+    }
+
+    public Project getProject(Long projectId) {
+        Project project = projects.get(projectId);
+        if (project == null) {
+            throw new IllegalArgumentException("project not found");
+        }
         return project;
     }
 
@@ -245,7 +306,12 @@ public class PmStore {
     public record Requirement(Long id, Long productId, String title, RequirementStatus status) {
     }
 
-    public record Project(Long id, String name) {
+    public record Project(Long id,
+                          String name,
+                          String owner,
+                          LocalDate startDate,
+                          LocalDate endDate,
+                          ProjectStatus status) {
     }
 
     public record Task(Long id, Long projectId, String title, TaskStatus status, Double effectiveHours) {
@@ -272,6 +338,11 @@ public class PmStore {
         REVIEWED,
         IMPLEMENTING,
         CLOSED
+    }
+
+    public enum ProjectStatus {
+        ONGOING,
+        ARCHIVED
     }
 
     public enum TaskStatus {
